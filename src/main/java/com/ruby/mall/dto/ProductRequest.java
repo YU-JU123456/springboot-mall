@@ -8,11 +8,11 @@ import jakarta.validation.constraints.NotNull;
  * */
 public class ProductRequest {
     @NotNull
-    private String product_name;
+    private String productName;
     @NotNull
     private ProductCategory category;
     @NotNull
-    private String image_url;
+    private String imageUrl;
     @NotNull
     private Integer price;
     @NotNull
@@ -20,12 +20,12 @@ public class ProductRequest {
     private String description;
 
 
-    public String getProduct_name() {
-        return product_name;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setProduct_name(String product_name) {
-        this.product_name = product_name;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public ProductCategory getCategory() {
@@ -36,12 +36,12 @@ public class ProductRequest {
         this.category = category;
     }
 
-    public String getImage_url() {
-        return image_url;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getPrice() {
