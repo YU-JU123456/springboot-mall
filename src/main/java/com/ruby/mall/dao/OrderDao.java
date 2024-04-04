@@ -9,4 +9,6 @@ import java.util.List;
 public interface OrderDao {
     Integer createOrder(Integer userId, Integer tCount);
     void createOrderItems(Integer orderId, List<OrderItem> orderItemList);
+    Order getOrderById(Integer orderId);
+    List<OrderItem> getOrderItemsByOrderId(Integer orderId);
 }
