@@ -1,5 +1,9 @@
 # springboot-mall
 
+### 架構
+
+使用 MVC 模式, Controller-Service-Dao 三層式架構
+
 ### 資料夾結構
 
 1. model: 定義 tb 對應到的 java class
@@ -16,5 +20,7 @@
 2. 帳號功能
    1. 註冊帳號
    2. 登入
-3.
+   3. 單元測試
+3. 訂單功能
+   1. 創建訂單
 4.
