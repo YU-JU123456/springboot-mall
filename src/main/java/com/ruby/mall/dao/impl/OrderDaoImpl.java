@@ -1,7 +1,7 @@
 package com.ruby.mall.dao.impl;
 
 import com.ruby.mall.dao.OrderDao;
-import com.ruby.mall.dto.CreateOrderRequest;
+import com.ruby.mall.dto.OrderQueryParam;
 import com.ruby.mall.model.Order;
 import com.ruby.mall.model.OrderItem;
 import com.ruby.mall.rowmapper.OrderItemRowMapper;
@@ -12,9 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.Transient;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +63,7 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public Order getOrderById(Integer orderId) {
+    public Order getOrderByOrderId(Integer orderId) {
         String sql = "SELECT order_id, user_id, total_amount, created_date, last_modified_date FROM `order` WHERE order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
@@ -91,5 +89,43 @@ public class OrderDaoImpl implements OrderDao {
 
         List<OrderItem> orderItems = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
         return orderItems;
+    }
+
+    @Override
+    public List<Order> getOrders(OrderQueryParam orderQueryParam) {
+        String sql = "SELECT order_id, user_id, created_date, total_amount, " +
+                "last_modified_date FROM `order` WHERE 1=1 ";
+
+        Map<String, Object> map = new HashMap<>();
+
+        sql = addFilteringSql(sql, map, orderQueryParam);
+
+        // 排序
+        sql += "ORDER BY created_date DESC ";
+
+        // 分頁
+        sql += "LIMIT :limit OFFSET :offset";
+        map.put("limit", orderQueryParam.getLimit());
+        map.put("offset", orderQueryParam.getOffset());
+
+        return namedParameterJdbcTemplate.query(sql, map, new OrderRowMapper());
+    }
+
+    @Override
+    public Integer countOrders(OrderQueryParam orderQueryParam) {
+        String sql = "SELECT count(*) FROM `order` WHERE 1=1 ";
+
+        Map<String, Object> map = new HashMap<>();
+        sql = addFilteringSql(sql, map, orderQueryParam);
+
+        Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+        return total;
+    }
+
+    private String addFilteringSql(String sql, Map map, OrderQueryParam orderQueryParam){
+        sql += "AND user_id = :userId ";
+
+        map.put("userId", orderQueryParam.getUserId());
+        return sql;
     }
 }

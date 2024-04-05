@@ -5,6 +5,7 @@ import com.ruby.mall.dao.ProductDao;
 import com.ruby.mall.dao.UserDao;
 import com.ruby.mall.dto.BuyItem;
 import com.ruby.mall.dto.CreateOrderRequest;
+import com.ruby.mall.dto.OrderQueryParam;
 import com.ruby.mall.model.Order;
 import com.ruby.mall.model.OrderItem;
 import com.ruby.mall.model.Product;
@@ -79,10 +80,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrderById(Integer orderId) {
-        Order order = orderDao.getOrderById(orderId);
+        Order order = orderDao.getOrderByOrderId(orderId);
 
         List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(orderId);
         order.setOrderItemList(orderItemList);
         return order;
+    }
+
+    @Override
+    public List<Order> getOrders(OrderQueryParam orderQueryParam) {
+        List<Order> orderList = orderDao.getOrders(orderQueryParam);
+
+        for (Order order: orderList){
+            List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(order.getOrderId());
+            order.setOrderItemList(orderItemList);
+        }
+        return orderList;
+    }
+
+    @Override
+    public Integer countOrders(OrderQueryParam orderQueryParam) {
+        return orderDao.countOrders(orderQueryParam);
     }
 }
