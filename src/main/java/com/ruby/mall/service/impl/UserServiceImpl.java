@@ -32,7 +32,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 使用 MD5 生成密碼的雜湊值
-        String hashPwd = DigestUtils.md5DigestAsHex(userRegisterRequest.getPwd().getBytes(StandardCharsets.UTF_8));
+        // String hashPwd = DigestUtils.md5DigestAsHex(userRegisterRequest.getPwd().getBytes(StandardCharsets.UTF_8));
+        String hashPwd = userRegisterRequest.getPwd();
         userRegisterRequest.setPwd(hashPwd);
 
         // 創建帳號
@@ -52,7 +53,8 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        String hashPwd = DigestUtils.md5DigestAsHex(userLoginRequest.getPwd().getBytes(StandardCharsets.UTF_8));
+//        String hashPwd = DigestUtils.md5DigestAsHex(userLoginRequest.getPwd().getBytes(StandardCharsets.UTF_8));
+        String hashPwd = userLoginRequest.getPwd();
         if(user.getPwd().equals(hashPwd)){
             return user;
         } else {
