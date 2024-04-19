@@ -18,24 +18,21 @@ public class UserDetailService implements UserDetailsService {
     @Autowired
     private UserDao userDao;
 
+    /**
+     * 用途:根據使用者輸入的帳號, 查詢會員數據, 並回傳 security 要的 User 格式
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 用途:根據使用者輸入的帳號, 查詢會員數據, 並回傳 security 要的格式
-
         /* 從資料庫中查詢 member 數據 */
         com.ruby.mall.model.User member = userDao.getUserByEmail(username);
 
-        if(member == null){
-            throw new UsernameNotFoundException("Member not found for: " + username);
-        } else {
-            String memberEmail = member.getEmail();
-            String memberPwd = member.getPwd();
+        String memberEmail = member.getEmail();
+        String memberPwd = member.getPwd();
 
-            // 跟權限有關的設定
-            List<GrantedAuthority> authorities = new ArrayList<>();
+        // 跟權限有關的設定
+        List<GrantedAuthority> authorities = new ArrayList<>();
 
-            // 轉換成 Spring Security 指定的 User 格式
-            return new User(memberEmail, memberPwd, authorities);
-        }
+        // 轉換成 Spring Security 指定的 User 格式
+        return new User(memberEmail, memberPwd, authorities);
     }
 }
