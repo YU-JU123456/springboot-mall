@@ -4,6 +4,7 @@ import com.ruby.mall.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/users/register").permitAll() // 所有人都可以使用
                         .requestMatchers("/admin/register").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // 所有 request 都要登入才可以請求
                 )
                 .addFilterBefore(new LoginFilter(userDao), BasicAuthenticationFilter.class)
