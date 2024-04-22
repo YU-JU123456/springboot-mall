@@ -7,9 +7,11 @@ import java.util.Map;
 
 public enum StatusCode {
     /* Code */
-    AUTHENTICATION_NOT_EXIST(40101, "Account not exist"), // login: 帳號不存在
     AUTHENTICATION_ALREADY_EXIST(40001, "Account already exist"), // register: 帳號已存在
-    AUTHENTICATION_ROLE_ILLEGAL(40002, "RoleId illegle"); // register: roleId 不存在
+    AUTHENTICATION_ROLE_ILLEGAL(40002, "RoleId illegle"), // register: roleId 不存在
+
+    AUTHENTICATION_NOT_EXIST(40101, "Account not exist"), // login: 帳號不存在
+    AUTHENTICATION_ERROR_PERSON(40102, "No authorization from the individual"); // order: 不是本人
 
     /* Getter & Setter */
     private Integer statusCode;

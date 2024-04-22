@@ -42,14 +42,16 @@
       1. /users/register 為註冊 user 權限帳號的 api, 不檢查 Authentication
       2. /admin/register 為註冊 admin/user 權限帳號的 api, 僅限 admin 權限使用者使用, 非 admin 權限使用者會回傳 403 錯誤
       3. 註冊成功後, 回傳 userId 及權限名稱
-      4. 若帳號已被註冊, 回傳 response status 400 錯誤, 錯誤代碼 40001
+      4. 若帳號已被註冊, 回傳 response status 400 錯誤, 錯誤代碼 400001
    2. 登入
-      1. 如果該帳號不存在, 回傳 response status 401, 錯誤代碼 40101
+      1. 如果該帳號不存在, 回傳 response status 401, 錯誤代碼 401001
       2. DB 有預先建立一組 admin 權限的帳號: admin/admin (目前為手動新增)
    3. 單元測試
 3. 訂單功能
 
    1. 創建訂單
+      1. 只有本人能創建自己的訂單, 非本人創建訂單回傳 response status 401, 錯誤代碼 401002
+      2. 創建完成後, 更新商品庫存數量
    2. 查詢訂單
    3. 單元測試
 4. Spring Security

@@ -1,8 +1,8 @@
 package com.ruby.mall.constant;
 
 public enum RoleCategory {
-    ROLE_ADMIN(0, "ROLE_ADMIN"),
-    ROLE_USER(1, "ROLE_USER");
+    ROLE_ADMIN(1, "ROLE_ADMIN"),
+    ROLE_USER(2, "ROLE_USER");
 
     private Integer roleIdx;
     private String role;

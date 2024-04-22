@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // 所有 request 都要登入才可以請求
                 )
                 .addFilterBefore(new LoginFilter(userDao), BasicAuthenticationFilter.class)
+                .addFilterBefore(new OrderFilter(userDao), BasicAuthenticationFilter.class)
                 .build();
     }
 }
