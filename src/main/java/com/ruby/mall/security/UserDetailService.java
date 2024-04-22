@@ -1,8 +1,10 @@
 package com.ruby.mall.security;
 
 import com.ruby.mall.dao.UserDao;
+import com.ruby.mall.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,9 +32,21 @@ public class UserDetailService implements UserDetailsService {
         String memberPwd = member.getPwd();
 
         // 跟權限有關的設定
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        List<Role> roleList = userDao.getRolesByUserId(member.getUserId());
+        List<GrantedAuthority> authorities = convertToAuthorities(roleList);
 
         // 轉換成 Spring Security 指定的 User 格式
         return new User(memberEmail, memberPwd, authorities);
+    }
+
+    private List<GrantedAuthority> convertToAuthorities(List<Role> roleList){
+        /* 格式轉換, 將 List<Role> 轉換成 List<GrantedAuthority> */
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        for(Role role: roleList){
+            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+        }
+
+        return authorities;
     }
 }

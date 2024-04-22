@@ -30,13 +30,19 @@ public class LoginFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Authentication authRequest = this.authenticationConverter.convert(request);
-        String username = authRequest.getName();
+        String url = request.getRequestURI();
+        if(url.equals("/users/login")){
+            Authentication authRequest = this.authenticationConverter.convert(request);
+            String username = authRequest.getName();
 
-        com.ruby.mall.model.User member = userDao.getUserByEmail(username);
-        if(member == null){
-            Integer code = StatusCode.AUTHENTICATION_410.getStatusCode();
-            response.setStatus(code);
+            com.ruby.mall.model.User member = userDao.getUserByEmail(username);
+            if(member == null){
+                String body = StatusCode.AUTHENTICATION_NOT_EXIST.getResponseBody();
+                response.setStatus(401);
+                response.getWriter().write(body);
+            } else {
+                filterChain.doFilter(request, response);
+            }
         } else {
             filterChain.doFilter(request, response);
         }

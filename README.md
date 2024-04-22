@@ -21,15 +21,17 @@
    3. 單元測試
 2. 帳號功能
 
-   1. 會預先建立一組 admin 權限的帳號
-   2. 註冊帳號
-      1. /users/register 為註冊 user 權限的帳號
-      2. /admin/register 為註冊 admin 權限的帳號
-   3. 登入
+   1. 註冊帳號
+      1. /users/register 為註冊 user 權限帳號的 api, 不檢查 Authentication
+      2. /admin/register 為註冊 admin/user 權限帳號的 api, 僅限 admin 權限使用者使用, 非 admin 權限使用者會回傳 403 錯誤
+      3. 註冊成功後, 回傳 userId 及權限名稱
+      4. 若帳號已被註冊, 回傳 411 錯誤
+   2. 登入
       1. 實作自定義 response code
-         * 如果帳號不存在, response code 為 410
+         * 如果該帳號不存在, 回傳 AUTHENTICATION_NOT_EXIST 錯誤
          * 其餘為 401
-   4. 單元測試
+      2. DB 有預先建立一組 admin 權限的帳號: admin/admin (目前為手動新增)
+   3. 單元測試
 3. 訂單功能
 
    1. 創建訂單
@@ -38,14 +40,12 @@
 4. Spring Security
 
    1. 身份認證
-      1. 有初始化一組 admin 權限的帳號 (目前為手動新增)
-      2. 除了 /users/register 外, 其餘 api 皆會檢查身分認證
+      1. 除了 /users/register 外, 其餘 api 皆會檢查身分認證
          * login 時將帳密資訊存在 header 而不是 request body
          * 其餘認證檢查 cookie 中的 session
-      3. 使用 Hash 中的 BCrypt 演算法在 DB 中儲存密碼, 取代明碼儲存
+      2. 使用 Hash 中的 BCrypt 演算法在 DB 中儲存密碼, 取代明碼儲存
    2. 使用 RBAC 權限管理
       1. 只有 ADMIN 權限使用者可以新增、修改、刪除商品
-      2. 只有 ADMIN 權限使用者可以使用 /admin/register api
    3. CORS 安全機制
       1. 由後端告訴前端信任來源
    4. CSRF 檢查

@@ -1,5 +1,6 @@
 package com.ruby.mall.dto;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -10,6 +11,7 @@ public class UserRegisterRequest {
     private String email;
     @NotBlank
     private String pwd;
+    private Integer roleId = 2; // 預設為一般權限
 
     public String getEmail() {
         return email;
@@ -26,4 +28,13 @@ public class UserRegisterRequest {
     public void setPwd(String pwd) {
         this.pwd = pwd;
     }
+
+    public Integer getRole() {
+        return roleId;
+    }
+
+    public void setRole(Integer role) {
+        this.roleId = role;
+    }
+
 }

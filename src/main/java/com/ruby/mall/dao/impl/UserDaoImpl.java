@@ -1,9 +1,10 @@
 package com.ruby.mall.dao.impl;
 
 import com.ruby.mall.dao.UserDao;
-import com.ruby.mall.dto.UserLoginRequest;
 import com.ruby.mall.dto.UserRegisterRequest;
+import com.ruby.mall.model.Role;
 import com.ruby.mall.model.User;
+import com.ruby.mall.rowmapper.RoleRowMapper;
 import com.ruby.mall.rowmapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -71,5 +72,50 @@ public class UserDaoImpl implements UserDao {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public Integer createUserRole(UserRegisterRequest userRegisterRequest, Integer userId) {
+        String sql = "INSERT INTO user_has_role (user_id, role_id) VALUES (:usrId, :roleId)";
+        Map<String, Object> map = new HashMap<>();
+        map.put("usrId", userId);
+        map.put("roleId", userRegisterRequest.getRole());
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
+
+    @Override
+    public Role getRoleNameByURoleId(Integer uRoleId) {
+        String sql = "SELECT Role.role_id, Role.role_name\n" +
+                "FROM user_has_role AS UR RIGHT OUTER JOIN role AS Role\n" +
+                "ON UR.role_id = Role.role_id\n" +
+                "WHERE UR.id = :id";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", uRoleId);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
+        if(!roleList.isEmpty()){
+            return roleList.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Role> getRolesByUserId(Integer userId) {
+        String sql = "SELECT role.role_id, role.role_name FROM role\n" +
+                "JOIN user_has_role ON user_has_role.role_id = role.role_id\n" +
+                "JOIN `user` ON user.user_id = user_has_role.user_id\n" +
+                "WHERE user_has_role.user_id = :userId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
+        return roleList;
     }
 }
