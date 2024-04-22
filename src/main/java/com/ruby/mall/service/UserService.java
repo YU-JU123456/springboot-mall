@@ -1,11 +1,11 @@
 package com.ruby.mall.service;
 
-import com.ruby.mall.dto.UserLoginRequest;
+import exception.AuthenticationAlreadyExist;
 import com.ruby.mall.dto.UserRegisterRequest;
 import com.ruby.mall.model.User;
+import exception.AuthenticationRoleillegle;
 
 public interface UserService {
-    Integer register(UserRegisterRequest userRegisterRequest);
+    String register(UserRegisterRequest userRegisterRequest) throws AuthenticationAlreadyExist, AuthenticationRoleillegle;
     User getUserById(Integer userId);
-    User login(UserLoginRequest userLoginRequest);
 }
