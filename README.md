@@ -1,8 +1,18 @@
 # springboot-電商網站實作
 
+#### 前言
+
+該專案為自學的課程中, 搭配自己改寫後呈現的專案, 歡迎討論不吝赐教!
+
+目前會持續更新及優化
+
+---
+
 ### 架構
 
 使用 MVC 模式, Controller-Service-Dao 三層式架構
+
+---
 
 ### /src/main/java/com.ruby.mall 下的資料夾結構
 
@@ -16,6 +26,8 @@
 5. security: 放 spring security 相關設定
 6. exception: 自訂義的例外類別
 7. MySQL.txt: 建立所有 table 的 SQL 語法
+
+---
 
 ### 專案內容
 
@@ -61,6 +73,8 @@
 
       1. 發生錯誤時, 除了調整 response code 外, response body 會帶自訂義錯誤代碼及錯誤原因
    6. 單元測試
+
+---
 
 ### 未來擴展
 
