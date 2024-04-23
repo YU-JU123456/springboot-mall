@@ -37,9 +37,9 @@ public class OrderFilter extends OncePerRequestFilter {
             if(member.getEmail().equals(username)){
                 filterChain.doFilter(request, response);
             } else {
-                String body = StatusCode.AUTHENTICATION_ERROR_PERSON.getResponseBody();
-                response.setStatus(401);
-                response.getWriter().write(body);
+                StatusCode statusCode = StatusCode.AUTHENTICATION_ERROR_PERSON;
+                response.setStatus(statusCode.getResponseCode());
+                response.getWriter().write(statusCode.getResponseBody());
             }
         } else {
             filterChain.doFilter(request, response);

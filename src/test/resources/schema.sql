@@ -38,3 +38,16 @@ CREATE TABLE IF NOT EXISTS order_item
     amount        INT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `role`
+(
+    role_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    role_name VARCHAR(256) NOT NULL UNIQUE
+    );
+
+CREATE TABLE IF NOT EXISTS user_has_role
+(
+    id               INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id          INT NOT NULL,
+    role_id          INT NOT NULL
+);
+

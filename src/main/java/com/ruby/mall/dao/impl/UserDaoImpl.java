@@ -109,7 +109,6 @@ public class UserDaoImpl implements UserDao {
     public List<Role> getRolesByUserId(Integer userId) {
         String sql = "SELECT role.role_id, role.role_name FROM role\n" +
                 "JOIN user_has_role ON user_has_role.role_id = role.role_id\n" +
-                "JOIN `user` ON user.user_id = user_has_role.user_id\n" +
                 "WHERE user_has_role.user_id = :userId";
 
         Map<String, Object> map = new HashMap<>();

@@ -37,9 +37,9 @@ public class LoginFilter extends OncePerRequestFilter {
 
             com.ruby.mall.model.User member = userDao.getUserByEmail(username);
             if(member == null){
-                String body = StatusCode.AUTHENTICATION_NOT_EXIST.getResponseBody();
-                response.setStatus(401);
-                response.getWriter().write(body);
+                StatusCode statusCode = StatusCode.AUTHENTICATION_NOT_EXIST;
+                response.setStatus(statusCode.getResponseCode());
+                response.getWriter().write(statusCode.getResponseBody());
             } else {
                 filterChain.doFilter(request, response);
             }
