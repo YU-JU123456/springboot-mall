@@ -18,7 +18,7 @@ import java.io.IOException;
 public class LoginFilter extends OncePerRequestFilter {
 
 
-    private AuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
+    private final AuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
     private final UserDao userDao;
 
     public LoginFilter(UserDao userDao) {

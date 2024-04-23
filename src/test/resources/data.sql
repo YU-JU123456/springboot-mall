@@ -11,6 +11,7 @@ INSERT INTO product (product_name, category, image_url, price, stock, descriptio
 INSERT INTO `user` (email, password, created_date, last_modified_date) VALUES ('user1@gmail.com', '$2a$12$Yoolc6wASxPzvfHyGLIk2edYH2qP7/MNBjCcF9b.LaxwAxUNdiRzK', '2022-06-30 10:30:00', '2022-06-30 10:30:00');
 INSERT INTO `user` (email, password, created_date, last_modified_date) VALUES ('user2@gmail.com', '$2a$12$D0GzZ44HYfIa0ZDqj1PZHO1DUw3qnPM5CBMG1v.VBQAKJmHcfagM2', '2022-06-30 10:40:00', '2022-06-30 10:40:00');
 INSERT INTO `user` (email, password, created_date, last_modified_date) VALUES ('test1@gmail.com', '$2a$10$aUfRIOYPn/C2pwjLnz3iMuFgJW.5QSp2aoaj1cL1qMP/dYMsF0Woe', '2022-06-30 10:40:00', '2022-06-30 10:40:00');
+INSERT INTO `user` (email, password, created_date, last_modified_date) VALUES ('admin@gmail.com', '$2a$12$hkpaws021adkh0YmR61AL.VxYMEq/bGTTCYM4v6QWxnuGNosT044K', '2022-06-30 10:40:00', '2022-06-30 10:40:00');
 
 -- order, order_item
 INSERT INTO `order` (user_id, total_amount, created_date, last_modified_date) VALUES (1, 500690, '2022-06-30 11:10:00', '2022-06-30 11:10:00');
@@ -30,3 +31,4 @@ INSERT INTO user_has_role (user_id, role_id) VALUES (1, 1);
 INSERT INTO user_has_role (user_id, role_id) VALUES (2, 2);
 INSERT INTO user_has_role (user_id, role_id) VALUES (2, 1);
 INSERT INTO user_has_role (user_id, role_id) VALUES (3, 2);
+INSERT INTO user_has_role (user_id, role_id) VALUES (4, 1);

@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class OrderFilter extends OncePerRequestFilter {
     /* 跟訂單相關的操作要檢查是否為本人 */
-    private AuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
+    private final AuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
     private final UserDao userDao;
 
     public OrderFilter(UserDao userDao) {
