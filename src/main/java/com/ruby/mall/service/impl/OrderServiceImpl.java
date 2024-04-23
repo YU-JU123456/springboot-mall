@@ -39,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
         User user = userDao.getUserById(userId);
         if (user == null){
             log.warn("userId {} 不存在", userId);
-            throw new MallException(StatusCode.ORDER_USER_NOT_EXIST.getResponseBody());
+            throw new MallException(StatusCode.ORDER_USER_NOT_EXIST);
         }
 
         int tAcount = 0;
@@ -51,12 +51,12 @@ public class OrderServiceImpl implements OrderService {
             // 檢查商品是否存在 & 庫存是否足夠
             if(product == null){
                 log.warn("商品 id {} 不存在", buyItem.getProductId());
-                throw new MallException(StatusCode.ORDER_PRODUCT_NOT_EXIST.getResponseBody());
+                throw new MallException(StatusCode.ORDER_PRODUCT_NOT_EXIST);
             }
 
             if(buyItem.getQuantity() > product.getStock()){
                 log.warn("商品 id {} 庫存不足, 庫存剩餘 {}, 需要數量 {}", buyItem.getProductId(),product.getStock(), buyItem.getQuantity());
-                throw new MallException(StatusCode.ORDER_STOCK_LIMITED.getResponseBody());
+                throw new MallException(StatusCode.ORDER_STOCK_LIMITED);
             }
 
             int amount = product.getPrice() * buyItem.getQuantity();

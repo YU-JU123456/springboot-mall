@@ -1,6 +1,7 @@
 package com.ruby.mall.controller;
 
 import com.ruby.mall.dto.UserRegisterRequest;
+import com.ruby.mall.exception.MallException;
 import com.ruby.mall.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,8 @@ public class UserController {
         try{
             String msg = userService.register(userRegisterRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("註冊成功! " + msg);
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (MallException e){
+            return ResponseEntity.status(e.responseCode).body(e.getMessage());
         }
     }
 }

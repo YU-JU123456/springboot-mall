@@ -30,7 +30,7 @@ public class OrderController {
             Object order = orderService.getOrderById(orderId);
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (MallException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(e.responseCode).body(e.getMessage());
         }
     }
 
