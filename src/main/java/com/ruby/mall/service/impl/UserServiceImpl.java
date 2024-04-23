@@ -1,6 +1,5 @@
 package com.ruby.mall.service.impl;
 
-import com.ruby.mall.constant.RoleCategory;
 import com.ruby.mall.constant.StatusCode;
 import com.ruby.mall.dao.UserDao;
 import com.ruby.mall.dto.UserRegisterRequest;
@@ -36,9 +35,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 檢查權限合法性
-        try {
-            RoleCategory roleCategory = RoleCategory.getRoleByValue(userRegisterRequest.getRole());
-        } catch (IllegalArgumentException e){
+        Role role = userDao.getRoleByRoleName(userRegisterRequest.getRoleName());
+        if(role == null){
             throw new MallException(StatusCode.AUTHENTICATION_ROLE_ILLEGAL);
         }
 
@@ -51,8 +49,7 @@ public class UserServiceImpl implements UserService {
         User usr = userDao.getUserById(usrId);
 
         // 創建 user & role 關聯表
-        Integer usrRoleIdx = userDao.createUserRole(userRegisterRequest, usrId);
-        Role role = userDao.getRoleNameByURoleId(usrRoleIdx);
+        userDao.createUserRole(usrId, role.getRoleId());
 
         // output
         StringBuilder msg = new StringBuilder();

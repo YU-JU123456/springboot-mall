@@ -2,7 +2,6 @@ package com.ruby.mall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruby.mall.common.CheckResult;
-import com.ruby.mall.constant.RoleCategory;
 import com.ruby.mall.constant.StatusCode;
 import com.ruby.mall.dao.UserDao;
 import com.ruby.mall.dto.UserRegisterRequest;
@@ -67,6 +66,19 @@ public class UserControllerTest {
     }
 
     @Test
+    public void register_invalidRole() throws Exception {
+        // 不存在的權限名稱
+        UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
+        userRegisterRequest.setEmail("test3@gmail.com");
+        userRegisterRequest.setPwd("333");
+        userRegisterRequest.setRoleName("ROLE_TEST");
+
+        RequestBuilder requestBuilder = registerRequestBuilder(userRegisterRequest);
+        StatusCode statusCode = StatusCode.AUTHENTICATION_ROLE_ILLEGAL;
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
+    }
+
+    @Test
     public void register_emailAlreadyExist() throws Exception {
         UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
         userRegisterRequest.setEmail("test1@gmail.com");
@@ -84,7 +96,7 @@ public class UserControllerTest {
         UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
         userRegisterRequest.setEmail("admin2@gmail.com");
         userRegisterRequest.setPwd("admin2");
-        userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
+        userRegisterRequest.setRoleName("ROLE_ADMIN");
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "admin@gmail.com", "admin");
         new CheckResult(mockMvc).check(requestBuilder, 201, "註冊成功! user id 為: 5, 權限為: ROLE_ADMIN");
@@ -96,7 +108,7 @@ public class UserControllerTest {
         UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
         userRegisterRequest.setEmail("admin2@gmail.com");
         userRegisterRequest.setPwd("admin2");
-        userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
+        userRegisterRequest.setRoleName("ROLE_ADMIN");
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "test1@gmail.com", "111");
         new CheckResult(mockMvc).check(requestBuilder, 403);
@@ -108,7 +120,7 @@ public class UserControllerTest {
         UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
         userRegisterRequest.setEmail("admin2@gmail.com");
         userRegisterRequest.setPwd("admin2");
-        userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
+        userRegisterRequest.setRoleName("ROLE_ADMIN");
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "test1234@gmail.com", "111");
         new CheckResult(mockMvc).check(requestBuilder, 401);

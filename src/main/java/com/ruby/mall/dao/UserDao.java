@@ -10,7 +10,7 @@ public interface UserDao {
     Integer createUser(UserRegisterRequest userRegisterRequest);
     User getUserById(Integer userId);
     User getUserByEmail(String email);
-    Integer createUserRole(UserRegisterRequest userRegisterRequest, Integer userId);
-    Role getRoleNameByURoleId(Integer uRoleId); // 由 UserRoleId 取得 roleName
+    Integer createUserRole(Integer userId, Integer roleId);
+    Role getRoleByRoleName(String roleName);
     List<Role> getRolesByUserId(Integer userId);
 }
