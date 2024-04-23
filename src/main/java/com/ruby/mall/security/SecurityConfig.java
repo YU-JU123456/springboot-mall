@@ -46,7 +46,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
-                        .anyRequest().authenticated() // 所有 request 都要登入才可以請求
+
+                        .requestMatchers("/users/**").authenticated()
+                        .requestMatchers("/products").authenticated()
+                        .requestMatchers("/products/**").authenticated()
+                        .anyRequest().denyAll()
                 )
                 .addFilterBefore(new LoginFilter(userDao), BasicAuthenticationFilter.class)
                 .addFilterBefore(new OrderFilter(userDao), BasicAuthenticationFilter.class)

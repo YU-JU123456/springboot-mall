@@ -34,7 +34,11 @@ public class OrderFilter extends OncePerRequestFilter {
             int userId = Integer.parseInt(parts[2]);
 
             com.ruby.mall.model.User member = userDao.getUserById(userId);
-            if(member.getEmail().equals(username)){
+            if(member == null){
+                StatusCode statusCode = StatusCode.ORDER_USER_NOT_EXIST;
+                response.setStatus(statusCode.getResponseCode());
+                response.getWriter().write(statusCode.getResponseBody());
+            } else if (member.getEmail().equals(username)){
                 filterChain.doFilter(request, response);
             } else {
                 StatusCode statusCode = StatusCode.AUTHENTICATION_ERROR_PERSON;

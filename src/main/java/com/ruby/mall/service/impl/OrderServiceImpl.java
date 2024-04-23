@@ -1,11 +1,13 @@
 package com.ruby.mall.service.impl;
 
+import com.ruby.mall.constant.StatusCode;
 import com.ruby.mall.dao.OrderDao;
 import com.ruby.mall.dao.ProductDao;
 import com.ruby.mall.dao.UserDao;
 import com.ruby.mall.dto.BuyItem;
 import com.ruby.mall.dto.CreateOrderRequest;
 import com.ruby.mall.dto.OrderQueryParam;
+import com.ruby.mall.exception.MallException;
 import com.ruby.mall.model.Order;
 import com.ruby.mall.model.OrderItem;
 import com.ruby.mall.model.Product;
@@ -14,10 +16,8 @@ import com.ruby.mall.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +35,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional // 確保會成功更新兩張 tb, 一個失敗就會一起失敗
-    public Integer createOrder(Integer userId, CreateOrderRequest createOrderRequest) {
+    public Integer createOrder(Integer userId, CreateOrderRequest createOrderRequest) throws MallException {
         User user = userDao.getUserById(userId);
         if (user == null){
             log.warn("userId {} 不存在", userId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new MallException(StatusCode.ORDER_USER_NOT_EXIST.getResponseBody());
         }
 
         int tAcount = 0;
@@ -51,12 +51,12 @@ public class OrderServiceImpl implements OrderService {
             // 檢查商品是否存在 & 庫存是否足夠
             if(product == null){
                 log.warn("商品 id {} 不存在", buyItem.getProductId());
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                throw new MallException(StatusCode.ORDER_PRODUCT_NOT_EXIST.getResponseBody());
             }
 
             if(buyItem.getQuantity() > product.getStock()){
                 log.warn("商品 id {} 庫存不足, 庫存剩餘 {}, 需要數量 {}", buyItem.getProductId(),product.getStock(), buyItem.getQuantity());
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                throw new MallException(StatusCode.ORDER_STOCK_LIMITED.getResponseBody());
             }
 
             int amount = product.getPrice() * buyItem.getQuantity();
