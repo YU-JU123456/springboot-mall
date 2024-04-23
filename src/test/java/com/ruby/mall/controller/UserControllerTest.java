@@ -1,6 +1,7 @@
 package com.ruby.mall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruby.mall.common.CheckResult;
 import com.ruby.mall.constant.RoleCategory;
 import com.ruby.mall.constant.StatusCode;
 import com.ruby.mall.dao.UserDao;
@@ -26,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,7 +44,7 @@ public class UserControllerTest {
         userRegisterRequest.setPwd("123");
 
         RequestBuilder requestBuilder = registerRequestBuilder(userRegisterRequest);
-        checkResult(requestBuilder, 201);
+        new CheckResult(mockMvc).check(requestBuilder, 201);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class UserControllerTest {
         userRegisterRequest.setPwd("123");
 
         RequestBuilder requestBuilder = registerRequestBuilder(userRegisterRequest);
-        checkResult(requestBuilder, 400);
+        new CheckResult(mockMvc).check(requestBuilder, 400);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class UserControllerTest {
 
         StatusCode statusCode = StatusCode.AUTHENTICATION_ALREADY_EXIST;
         RequestBuilder requestBuilder = registerRequestBuilder(userRegisterRequest);
-        checkResult(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
 
@@ -90,7 +90,7 @@ public class UserControllerTest {
         userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "admin@gmail.com", "admin");
-        checkResult(requestBuilder, 201, "註冊成功! user id 為: 5, 權限為: ROLE_ADMIN");
+        new CheckResult(mockMvc).check(requestBuilder, 201, "註冊成功! user id 為: 5, 權限為: ROLE_ADMIN");
     }
 
     @Test
@@ -102,7 +102,7 @@ public class UserControllerTest {
         userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "test1@gmail.com", "111");
-        checkResult(requestBuilder, 403);
+        new CheckResult(mockMvc).check(requestBuilder, 403);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class UserControllerTest {
         userRegisterRequest.setRole(RoleCategory.ROLE_ADMIN.getRoleIdx());
 
         RequestBuilder requestBuilder = registerAdminRequestBuilder(userRegisterRequest, "test1234@gmail.com", "111");
-        checkResult(requestBuilder, 401);
+        new CheckResult(mockMvc).check(requestBuilder, 401);
     }
 
     // 登入
@@ -124,7 +124,7 @@ public class UserControllerTest {
                 .post("/users/login")
                 .with(httpBasic("test1@gmail.com", "111"));
 
-        checkResult(requestBuilder, 200, "test1@gmail.com, 登入成功! 權限為: [ROLE_USER]");
+        new CheckResult(mockMvc).check(requestBuilder, 200, "test1@gmail.com, 登入成功! 權限為: [ROLE_USER]");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class UserControllerTest {
                 .post("/users/login")
                 .with(httpBasic("test1@gmail.com", "456"));
 
-        checkResult(requestBuilder, 401);
+        new CheckResult(mockMvc).check(requestBuilder, 401);
     }
 
     @Test
@@ -143,24 +143,7 @@ public class UserControllerTest {
                 .with(httpBasic("test123@gmail.com", "111"));
 
         StatusCode statusCode = StatusCode.AUTHENTICATION_NOT_EXIST;
-        checkResult(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
-    }
-
-    /* Common Function */
-    private void checkResult(RequestBuilder requestBuilder, Integer code) throws Exception {
-        /* 檢查回傳的 response code */
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(code));
-    }
-
-    private void checkResult(RequestBuilder requestBuilder, Integer expectCode, String expectBody) throws Exception {
-        /* 檢查回傳的 response code 和 response body*/
-        MvcResult mvcResult = mockMvc.perform(requestBuilder)
-                .andExpect(status().is(expectCode))
-                .andReturn();
-
-        String body = mvcResult.getResponse().getContentAsString();
-        assertEquals(expectBody, body);
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
     /* 使用 user 權限進行註冊 */
