@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -219,6 +220,7 @@ public class OrderControllerTest {
                 .post("/users/{userId}/orders", userId)
                 .with(httpBasic(username, pwd))
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
                 .content(json);
 
         return requestBuilder;

@@ -15,10 +15,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -186,7 +187,8 @@ public class ProductControllerTest {
     public void deleteProduct_success() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .delete("/products/{productId}", 5)
-                .with(httpBasic("admin@gmail.com", "admin"));
+                .with(httpBasic("admin@gmail.com", "admin"))
+                .with(csrf());
 
         new CheckResult(mockMvc).check(requestBuilder, 204);
     }
@@ -195,7 +197,8 @@ public class ProductControllerTest {
     public void deleteProduct_403() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .delete("/products/{productId}", 5)
-                .with(httpBasic("test1@gmail.com", "111"));
+                .with(httpBasic("test1@gmail.com", "111"))
+                .with(csrf());
 
         new CheckResult(mockMvc).check(requestBuilder, 403);
     }
@@ -204,7 +207,8 @@ public class ProductControllerTest {
     public void deleteProduct_401() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .delete("/products/{productId}", 5)
-                .with(httpBasic("test123456@gmail.com", "111"));
+                .with(httpBasic("test123456@gmail.com", "111"))
+                .with(csrf());;
 
         new CheckResult(mockMvc).check(requestBuilder, 401);
     }
@@ -214,7 +218,8 @@ public class ProductControllerTest {
     public void deleteProduct_deleteNonExistingProduct() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .delete("/products/{productId}", 20000)
-                .with(httpBasic("admin@gmail.com", "admin"));
+                .with(httpBasic("admin@gmail.com", "admin"))
+                .with(csrf());
 
         new CheckResult(mockMvc).check(requestBuilder, 204);
     }
@@ -295,6 +300,7 @@ public class ProductControllerTest {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post(url)
                 .with(httpBasic("admin@gmail.com", "admin"))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
 
@@ -313,6 +319,7 @@ public class ProductControllerTest {
                 .put(url, param)
                 .with(httpBasic("admin@gmail.com", "admin"))
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
                 .content(json);
 
         return requestBuilder;

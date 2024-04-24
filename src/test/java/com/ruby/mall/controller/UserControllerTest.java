@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 
@@ -179,7 +180,8 @@ public class UserControllerTest {
                 .post("/admin/register")
                 .with(httpBasic(username, pwd))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
+                .content(json)
+                .with(csrf());
 
         return requestBuilder;
     }
