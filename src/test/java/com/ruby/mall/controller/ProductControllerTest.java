@@ -1,6 +1,7 @@
 package com.ruby.mall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruby.mall.common.CheckResult;
 import com.ruby.mall.constant.ProductCategory;
 import com.ruby.mall.dto.ProductRequest;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +33,8 @@ public class ProductControllerTest {
     @Test
     public void getProduct_success() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/products/{productId}", 1);
+                .get("/products/{productId}", 1)
+                .with(httpBasic("test1@gmail.com", "111"));
 
 
         mockMvc.perform(requestBuilder)
@@ -51,7 +53,8 @@ public class ProductControllerTest {
     @Test
     public void getProduct_notFound() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/products/{productId}", 20000);
+                .get("/products/{productId}", 20000)
+                .with(httpBasic("test1@gmail.com", "111"));;
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(404));
@@ -68,13 +71,7 @@ public class ProductControllerTest {
         productRequest.setPrice(100);
         productRequest.setStock(2);
 
-        String json = objectMapper.writeValueAsString(productRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
+        RequestBuilder requestBuilder = createRequestBuilder(productRequest, "/products");
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.productName", equalTo("test food product")))
@@ -93,17 +90,29 @@ public class ProductControllerTest {
         ProductRequest productRequest = new ProductRequest();
         productRequest.setProductName("test food product");
 
-        String json = objectMapper.writeValueAsString(productRequest);
+        RequestBuilder requestBuilder = createRequestBuilder(productRequest, "/products");
+        new CheckResult(mockMvc).check(requestBuilder, 400);
+    }
 
+    @Test
+    public void createProduct_403() throws Exception { // 使用 user 權限
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setProductName("test food product");
+        productRequest.setCategory(ProductCategory.FOOD);
+        productRequest.setImageUrl("http://test.com");
+        productRequest.setPrice(100);
+        productRequest.setStock(2);
+
+
+        String json = objectMapper.writeValueAsString(productRequest);
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/products")
+                .with(httpBasic("test1@gmail.com", "111"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
 
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
+        new CheckResult(mockMvc).check(requestBuilder, 403);
     }
-
     // 更新商品
     @Transactional
     @Test
@@ -115,13 +124,7 @@ public class ProductControllerTest {
         productRequest.setPrice(100);
         productRequest.setStock(2);
 
-        String json = objectMapper.writeValueAsString(productRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put("/products/{productId}", 3)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
+        RequestBuilder requestBuilder = createRequestBuilder(productRequest, "/products/{productId}", 3);
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.productName", equalTo("test food product")))
@@ -134,22 +137,33 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.lastModifiedDate", notNullValue()));
     }
 
+    @Test
+    public void updateProduct_403() throws Exception {
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setProductName("test food product");
+        productRequest.setCategory(ProductCategory.FOOD);
+        productRequest.setImageUrl("http://test.com");
+        productRequest.setPrice(100);
+        productRequest.setStock(2);
+
+        String json = objectMapper.writeValueAsString(productRequest);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put("/products/{productId}", 3)
+                .with(httpBasic("test1@gmail.com", "111"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        new CheckResult(mockMvc).check(requestBuilder, 403);
+    }
+
     @Transactional
     @Test
     public void updateProduct_illegalArgument() throws Exception {
         ProductRequest productRequest = new ProductRequest();
         productRequest.setProductName("test food product");
 
-        String json = objectMapper.writeValueAsString(productRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put("/products/{productId}", 3)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
-
+        RequestBuilder requestBuilder = createRequestBuilder(productRequest, "/products/{productId}", 3);
+        new CheckResult(mockMvc).check(requestBuilder, 400);
     }
 
     @Transactional
@@ -162,15 +176,8 @@ public class ProductControllerTest {
         productRequest.setPrice(100);
         productRequest.setStock(2);
 
-        String json = objectMapper.writeValueAsString(productRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put("/products/{productId}", 20000)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(404));
+        RequestBuilder requestBuilder = createRequestBuilder(productRequest, "/products/{productId}", 20000);
+        new CheckResult(mockMvc).check(requestBuilder, 404);
     }
 
     // 刪除商品
@@ -178,27 +185,46 @@ public class ProductControllerTest {
     @Test
     public void deleteProduct_success() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .delete("/products/{productId}", 5);
+                .delete("/products/{productId}", 5)
+                .with(httpBasic("admin@gmail.com", "admin"));
 
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(204));
+        new CheckResult(mockMvc).check(requestBuilder, 204);
+    }
+
+    @Test
+    public void deleteProduct_403() throws Exception {
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .delete("/products/{productId}", 5)
+                .with(httpBasic("test1@gmail.com", "111"));
+
+        new CheckResult(mockMvc).check(requestBuilder, 403);
+    }
+
+    @Test
+    public void deleteProduct_401() throws Exception {
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .delete("/products/{productId}", 5)
+                .with(httpBasic("test123456@gmail.com", "111"));
+
+        new CheckResult(mockMvc).check(requestBuilder, 401);
     }
 
     @Transactional
     @Test
     public void deleteProduct_deleteNonExistingProduct() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .delete("/products/{productId}", 20000);
+                .delete("/products/{productId}", 20000)
+                .with(httpBasic("admin@gmail.com", "admin"));
 
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(204));
+        new CheckResult(mockMvc).check(requestBuilder, 204);
     }
 
     // 查詢商品列表
     @Test
     public void getProducts() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/products");
+                .get("/products")
+                .with(httpBasic("test1@gmail.com", "111"));
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
@@ -211,6 +237,7 @@ public class ProductControllerTest {
     public void getProducts_filtering() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/products")
+                .with(httpBasic("test1@gmail.com", "111"))
                 .param("search", "B")
                 .param("category", "CAR");
 
@@ -224,6 +251,7 @@ public class ProductControllerTest {
     public void getProducts_sorting() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/products")
+                .with(httpBasic("test1@gmail.com", "111"))
                 .param("orderBy", "price")
                 .param("sort", "desc");
 
@@ -243,6 +271,7 @@ public class ProductControllerTest {
     public void getProducts_pagination() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/products")
+                .with(httpBasic("test1@gmail.com", "111"))
                 .param("limit", "2")
                 .param("offset", "2");
 
@@ -253,5 +282,39 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.results", hasSize(2)))
                 .andExpect(jsonPath("$.results[0].productId", equalTo(5)))
                 .andExpect(jsonPath("$.results[1].productId", equalTo(4)));
+    }
+
+    /* Common Function */
+    // POST
+    private RequestBuilder createRequestBuilder(
+            ProductRequest productRequest,
+            String url
+    ) throws Exception {
+        String json = objectMapper.writeValueAsString(productRequest);
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(url)
+                .with(httpBasic("admin@gmail.com", "admin"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        return requestBuilder;
+    }
+
+    // 使用 admin 權限 PUT
+    private RequestBuilder createRequestBuilder(
+            ProductRequest productRequest,
+            String url,
+            Integer param
+    ) throws Exception {
+        String json = objectMapper.writeValueAsString(productRequest);
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put(url, param)
+                .with(httpBasic("admin@gmail.com", "admin"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        return requestBuilder;
     }
 }

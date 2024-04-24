@@ -16,16 +16,17 @@
 
 ### /src/main/java/com.ruby.mall 下的資料夾結構
 
-1. model: 定義 tb 對應到的 java class
-2. rowmapper: implement rowMapper, 將 db query 出來的數據轉換為 java object
-3. constant: 用來存放常數的 package
+1. controller: 負責接收 Http request 驗證請求參數
+2. server: 負責業務邏輯
+3. dao: 與資料庫溝通
+4. model: 定義 tb 對應到的 java class
+5. rowmapper: implement rowMapper, 將 db query 出來的數據轉換為 java object
+6. constant: 用來存放常數的 package
    1. 商品分類類別
-   2. 權限類別
-   3. 自訂義錯誤代碼類別
-4. dto: Data Transfer Obj, 放雜項的 package
-5. security: 放 spring security 相關設定
-6. exception: 自訂義的例外類別
-7. MySQL.txt: 建立所有 table 的 SQL 語法
+   2. 自訂義錯誤代碼類別
+7. dto: Data Transfer Obj, 放雜項的 package
+8. security: 放 spring security 相關設定
+9. exception: 自訂義的例外類別
 
 ---
 
@@ -37,6 +38,11 @@
       1. 只有 admin 權限使用者可以使用
    2. 查詢商品列表, 包含使用排序、分頁的功能
    3. 單元測試
+      1. 查詢/修改/刪除 不存在的商品
+      2. 建立/修改 不完整資訊的商品
+      3. 使用 user 權限新增修改刪除商品
+      4. 使用錯誤帳密操作
+      5. 使用排序、分頁查詢商品
 2. 帳號功能
 
    1. 註冊帳號
@@ -48,6 +54,13 @@
       1. 如果該帳號不存在, 回傳 response status 401, 錯誤代碼 401001
       2. DB 有預先建立一組 admin 權限的帳號: admin/admin (目前為手動新增)
    3. 單元測試
+      1. 檢查 db 密碼不為明碼
+      2. 用錯誤 email 格式註冊
+      3. 使用非法權限名稱註冊
+      4. 用已存在的帳號註冊
+      5. 使用 user 權限註冊 admin 帳號
+      6. 使用錯誤帳密註冊 admin 帳號
+      7. 使用不存在的帳號登入
 3. 訂單功能
 
    1. 創建訂單
@@ -55,6 +68,14 @@
       2. 創建完成後, 更新商品庫存數量
    2. 查詢訂單
    3. 單元測試
+      1. 建立沒有任何商品的訂單
+      2. 建立不存在的使用者訂單
+      3. 建立商品不存在的訂單
+      4. 建立庫存數量不足的訂單
+      5. 建立登入身分和訂單身分不吻合的訂單(即用合法的他人身分下單)
+      6. 依分頁取得訂單
+      7. 取得空白訂單
+      8. 取得使用者不存在的訂單
 4. Spring Security
 
    1. 身份認證
