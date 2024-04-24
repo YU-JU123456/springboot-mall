@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -143,6 +144,27 @@ public class OrderControllerTest {
         new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
+    @Test
+    public void createOrder_noCsrf() throws Exception {
+        CreateOrderRequest createOrderRequest = new CreateOrderRequest();
+        List<BuyItem> buyItemList = new ArrayList<>();
+
+        BuyItem buyItem1 = new BuyItem();
+        buyItem1.setProductId(100);
+        buyItem1.setQuantity(1);
+        buyItemList.add(buyItem1);
+
+        createOrderRequest.setOrderList(buyItemList);
+        String json = objectMapper.writeValueAsString(createOrderRequest);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post("/users/{userId}/orders", 1)
+                .with(httpBasic("user2@gmail.com", "user2"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        new CheckResult(mockMvc).check(requestBuilder, 403);
+    }
+
     // 查詢訂單列表
     @Test
     public void getOrders() throws Exception {
@@ -219,6 +241,7 @@ public class OrderControllerTest {
                 .post("/users/{userId}/orders", userId)
                 .with(httpBasic(username, pwd))
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
                 .content(json);
 
         return requestBuilder;

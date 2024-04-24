@@ -13,6 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity()
@@ -36,7 +43,18 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
 
-                .csrf(csrf -> csrf.disable())
+                .cors( cors -> cors
+                        .configurationSource(createCorsConfig())
+                )
+                // 設定 CSRF 的保護
+                .csrf(csrf -> csrf
+                        // 要在 cookie 裡回傳 csrf token 給前端
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+
+                        // 檢查 request header 裡有沒有 xsrf token
+                        .csrfTokenRequestHandler(createCsrfHandler())
+                        .ignoringRequestMatchers("/users/register", "/users/login")
+                )
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
 
@@ -55,5 +73,27 @@ public class SecurityConfig {
                 .addFilterBefore(new LoginFilter(userDao), BasicAuthenticationFilter.class)
                 .addFilterBefore(new OrderFilter(userDao), BasicAuthenticationFilter.class)
                 .build();
+    }
+
+    private CsrfTokenRequestAttributeHandler createCsrfHandler(){
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName(null);
+        return csrfHandler;
+    }
+
+    private CorsConfigurationSource createCorsConfig(){
+        CorsConfiguration configuration = new CorsConfiguration();
+        // 表示後端允許的請求來源有哪些, 當 setAllowCredentials 為 true 則不能為 *
+        configuration.setAllowedOrigins(List.of("http://www.ruby.com"));
+
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+
+        configuration.setAllowCredentials(true); // 後端是否允許前端帶上 cookie
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

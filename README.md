@@ -85,12 +85,8 @@
          * 其餘認證檢查 cookie 中的 session
       2. 使用 Hash 中的 BCrypt 演算法在 DB 中儲存密碼, 取代明碼儲存
    2. 使用 RBAC 權限管理
-   3. CORS 安全機制
-
-      1. 由後端告訴前端信任來源
-   4. CSRF 檢查
-
-      1. 除了 /users/login 外, 其餘 api 皆會檢查 request header 裡是否有帶 X-XSRF-TOKEN
+   3. CORS 安全機制: 由後端告訴前端信任來源
+   4. CSRF 檢查: 除了 /users/login 外, 其餘 api 皆會檢查 request header 裡是否有帶 X-XSRF-TOKEN
    5. 自定義 response body
 
       1. 發生錯誤時, 除了調整 response code 外, response body 會帶自訂義錯誤代碼及錯誤原因
@@ -101,18 +97,14 @@
 ### 未來擴展
 
 1. Data 前處理
-
    1. Initialize database: 初始化所有 tables
    2. 預先建立一組 admin 權限帳號
 2. 商品功能
-
    1. 優化查詢列表效率: 使用 elastic search
    2. Price 使用 Decimal 類型儲存, 非 INT
 3. 帳號功能
-
    1. 每個 api 的 token 驗證
 4. 訂單功能
-
    1. 如何解決搶票問題?多人搶訂單怎麼解決
    2. 狀態問題, 如何處理訂單物流狀態? 訂單退款
    3. 怎麼串接金流
