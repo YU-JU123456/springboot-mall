@@ -2,9 +2,9 @@
 
 #### 前言
 
-該專案為自學的課程中, 搭配自己改寫後呈現的專案, 歡迎討論不吝赐教!
+該專案為自學的課程，搭配改寫及新增功能後呈現的專案, 歡迎討論不吝赐教
 
-目前會持續更新及優化
+目前正在持續更新及優化
 
 ---
 
@@ -23,7 +23,7 @@
 5. rowmapper: implement rowMapper, 將 db query 出來的數據轉換為 java object
 6. constant: 用來存放常數的 package
    1. 商品分類類別
-   2. 自訂義錯誤代碼類別
+   2. 自訂義回傳的錯誤代碼類別
 7. dto: Data Transfer Obj, 放雜項的 package
 8. security: 放 spring security 相關設定
 9. exception: 自訂義的例外類別
@@ -49,9 +49,9 @@
       1. /users/register 為註冊 user 權限帳號的 api, 不檢查 Authentication
       2. /admin/register 為註冊 admin/user 權限帳號的 api, 僅限 admin 權限使用者使用, 非 admin 權限使用者會回傳 403 錯誤
       3. 註冊成功後, 回傳 userId 及權限名稱
-      4. 若帳號已被註冊, 回傳 response status 400 錯誤, 錯誤代碼 400001
+      4. 若帳號已被註冊, 回傳 response status 400 錯誤, 並回傳自定義錯誤代碼
    2. 登入
-      1. 如果該帳號不存在, 回傳 response status 401, 錯誤代碼 401001
+      1. 如果該帳號不存在, 回傳 response status 401, 並回傳自定義錯誤代碼
       2. DB 有預先建立一組 admin 權限的帳號: admin/admin (目前為手動新增)
    3. 單元測試
       1. 檢查 db 密碼不為明碼
@@ -64,7 +64,7 @@
 3. 訂單功能
 
    1. 創建訂單
-      1. 只有本人能創建自己的訂單, 非本人創建訂單回傳 response status 401, 錯誤代碼 401002
+      1. 只有本人能創建自己的訂單, 非本人創建訂單回傳 response status 401, 並回傳自定義錯誤代碼
       2. 創建完成後, 更新商品庫存數量
    2. 查詢訂單
    3. 單元測試
@@ -97,14 +97,18 @@
 ### 未來擴展
 
 1. Data 前處理
+
    1. Initialize database: 初始化所有 tables
    2. 預先建立一組 admin 權限帳號
 2. 商品功能
+
    1. 優化查詢列表效率: 使用 elastic search
    2. Price 使用 Decimal 類型儲存, 非 INT
 3. 帳號功能
+
    1. 每個 api 的 token 驗證
 4. 訂單功能
+
    1. 如何解決搶票問題?多人搶訂單怎麼解決
    2. 狀態問題, 如何處理訂單物流狀態? 訂單退款
    3. 怎麼串接金流
