@@ -3,9 +3,8 @@ package com.ruby.mall.controller;
 import com.ruby.mall.dto.CreateOrderRequest;
 import com.ruby.mall.dto.OrderPage;
 import com.ruby.mall.dto.OrderQueryParam;
-import com.ruby.mall.dto.ProductPage;
+import com.ruby.mall.exception.MallException;
 import com.ruby.mall.model.Order;
-import com.ruby.mall.model.Product;
 import com.ruby.mall.service.OrderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -23,12 +22,16 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/users/{userId}/orders")
-    public ResponseEntity<Order> createOrder(@PathVariable Integer userId,
+    public ResponseEntity<Object> createOrder(@PathVariable Integer userId,
                                          @RequestBody @Valid CreateOrderRequest createOrderRequest)
     {
-        Integer orderId = orderService.createOrder(userId, createOrderRequest);
-        Order order = orderService.getOrderById(orderId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        try{
+            Integer orderId = orderService.createOrder(userId, createOrderRequest);
+            Object order = orderService.getOrderById(orderId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        } catch (MallException e){
+            return ResponseEntity.status(e.responseCode).body(e.getMessage());
+        }
     }
 
     @GetMapping("/users/{userId}/orders")

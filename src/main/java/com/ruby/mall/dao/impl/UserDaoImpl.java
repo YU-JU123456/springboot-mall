@@ -75,11 +75,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Integer createUserRole(UserRegisterRequest userRegisterRequest, Integer userId) {
+    public Integer createUserRole(Integer userId, Integer roleId) {
         String sql = "INSERT INTO user_has_role (user_id, role_id) VALUES (:usrId, :roleId)";
         Map<String, Object> map = new HashMap<>();
         map.put("usrId", userId);
-        map.put("roleId", userRegisterRequest.getRole());
+        map.put("roleId", roleId);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
@@ -87,29 +87,11 @@ public class UserDaoImpl implements UserDao {
         return keyHolder.getKey().intValue();
     }
 
-    @Override
-    public Role getRoleNameByURoleId(Integer uRoleId) {
-        String sql = "SELECT Role.role_id, Role.role_name\n" +
-                "FROM user_has_role AS UR RIGHT OUTER JOIN role AS Role\n" +
-                "ON UR.role_id = Role.role_id\n" +
-                "WHERE UR.id = :id";
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", uRoleId);
-
-        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
-        if(!roleList.isEmpty()){
-            return roleList.get(0);
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public List<Role> getRolesByUserId(Integer userId) {
         String sql = "SELECT role.role_id, role.role_name FROM role\n" +
                 "JOIN user_has_role ON user_has_role.role_id = role.role_id\n" +
-                "JOIN `user` ON user.user_id = user_has_role.user_id\n" +
                 "WHERE user_has_role.user_id = :userId";
 
         Map<String, Object> map = new HashMap<>();
@@ -117,5 +99,19 @@ public class UserDaoImpl implements UserDao {
 
         List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
         return roleList;
+    }
+
+    @Override
+    public Role getRoleByRoleName(String roleName) {
+        String sql = "SELECT role_id, role_name FROM role WHERE role_name = :roleName";
+        Map<String, Object> map = new HashMap<>();
+        map.put("roleName", roleName);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, new RoleRowMapper());
+        if(!roleList.isEmpty()){
+            return roleList.get(0);
+        } else {
+            return null;
+        }
     }
 }

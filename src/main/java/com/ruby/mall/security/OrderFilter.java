@@ -9,39 +9,41 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
-public class LoginFilter extends OncePerRequestFilter {
-
-
+public class OrderFilter extends OncePerRequestFilter {
+    /* 跟訂單相關的操作要檢查是否為本人 */
     private final AuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
     private final UserDao userDao;
 
-    public LoginFilter(UserDao userDao) {
+    public OrderFilter(UserDao userDao) {
         this.userDao = userDao;
     }
 
-    /**
-     * login 時檢查 account 是否存在
-     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String url = request.getRequestURI();
-        if(url.equals("/users/login")){
+        String method = request.getMethod();
+        if(url.matches("/users/\\d+/orders") && method.equals("POST")){
             Authentication authRequest = this.authenticationConverter.convert(request);
             String username = authRequest.getName();
 
-            com.ruby.mall.model.User member = userDao.getUserByEmail(username);
+            String[] parts = url.split("/");
+            int userId = Integer.parseInt(parts[2]);
+
+            com.ruby.mall.model.User member = userDao.getUserById(userId);
             if(member == null){
-                StatusCode statusCode = StatusCode.AUTHENTICATION_NOT_EXIST;
+                StatusCode statusCode = StatusCode.ORDER_USER_NOT_EXIST;
                 response.setStatus(statusCode.getResponseCode());
                 response.getWriter().write(statusCode.getResponseBody());
-            } else {
+            } else if (member.getEmail().equals(username)){
                 filterChain.doFilter(request, response);
+            } else {
+                StatusCode statusCode = StatusCode.AUTHENTICATION_ERROR_PERSON;
+                response.setStatus(statusCode.getResponseCode());
+                response.getWriter().write(statusCode.getResponseBody());
             }
         } else {
             filterChain.doFilter(request, response);

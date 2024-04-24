@@ -1,6 +1,8 @@
 package com.ruby.mall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruby.mall.common.CheckResult;
+import com.ruby.mall.constant.StatusCode;
 import com.ruby.mall.dto.BuyItem;
 import com.ruby.mall.dto.CreateOrderRequest;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,14 +50,7 @@ public class OrderControllerTest {
         buyItemList.add(buyItem2);
 
         createOrderRequest.setOrderList(buyItemList);
-
-        String json = objectMapper.writeValueAsString(createOrderRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/{userId}/orders", 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 1, "user1@gmail.com", "user1");
         mockMvc.perform(requestBuilder)
                 .andExpect(status().is(201))
                 .andExpect(jsonPath("$.orderId", notNullValue()))
@@ -73,15 +68,8 @@ public class OrderControllerTest {
         List<BuyItem> buyItemList = new ArrayList<>();
         createOrderRequest.setOrderList(buyItemList);
 
-        String json = objectMapper.writeValueAsString(createOrderRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/{userId}/orders", 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 1, "user1@gmail.com", "user1");
+        new CheckResult(mockMvc).check(requestBuilder, 400);
     }
 
     @Transactional
@@ -96,16 +84,10 @@ public class OrderControllerTest {
         buyItemList.add(buyItem1);
 
         createOrderRequest.setOrderList(buyItemList);
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 100, "user1@gmail.com", "user1");
 
-        String json = objectMapper.writeValueAsString(createOrderRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/{userId}/orders", 100)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
+        StatusCode statusCode = StatusCode.ORDER_USER_NOT_EXIST;
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
     @Transactional
@@ -120,16 +102,10 @@ public class OrderControllerTest {
         buyItemList.add(buyItem1);
 
         createOrderRequest.setOrderList(buyItemList);
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 1, "user1@gmail.com", "user1");
 
-        String json = objectMapper.writeValueAsString(createOrderRequest);
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/{userId}/orders", 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
+        StatusCode statusCode = StatusCode.ORDER_PRODUCT_NOT_EXIST;
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
     @Transactional
@@ -144,23 +120,35 @@ public class OrderControllerTest {
         buyItemList.add(buyItem1);
 
         createOrderRequest.setOrderList(buyItemList);
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 1, "user1@gmail.com", "user1");
 
-        String json = objectMapper.writeValueAsString(createOrderRequest);
+        StatusCode statusCode = StatusCode.ORDER_STOCK_LIMITED;
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
+    }
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/users/{userId}/orders", 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json);
+    @Test
+    public void createOrder_401() throws Exception { // 不是本人下訂單
+        CreateOrderRequest createOrderRequest = new CreateOrderRequest();
+        List<BuyItem> buyItemList = new ArrayList<>();
 
-        mockMvc.perform(requestBuilder)
-                .andExpect(status().is(400));
+        BuyItem buyItem1 = new BuyItem();
+        buyItem1.setProductId(100);
+        buyItem1.setQuantity(1);
+        buyItemList.add(buyItem1);
+
+        createOrderRequest.setOrderList(buyItemList);
+        RequestBuilder requestBuilder = createOrder(createOrderRequest, 1, "user2@gmail.com", "user2");
+
+        StatusCode statusCode = StatusCode.AUTHENTICATION_ERROR_PERSON;
+        new CheckResult(mockMvc).check(requestBuilder, statusCode.getResponseCode(), statusCode.getResponseBody());
     }
 
     // 查詢訂單列表
     @Test
     public void getOrders() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/users/{userId}/orders", 1);
+                .get("/users/{userId}/orders", 1)
+                .with(httpBasic("test1@gmail.com", "111"));
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
@@ -184,6 +172,7 @@ public class OrderControllerTest {
     public void getOrders_pagination() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/users/{userId}/orders", 1)
+                .with(httpBasic("test1@gmail.com", "111"))
                 .param("limit", "2")
                 .param("offset", "2");
 
@@ -196,7 +185,8 @@ public class OrderControllerTest {
     @Test
     public void getOrders_userHasNoOrder() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/users/{userId}/orders", 2);
+                .get("/users/{userId}/orders", 2)
+                .with(httpBasic("test1@gmail.com", "111"));
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
@@ -207,11 +197,32 @@ public class OrderControllerTest {
     @Test
     public void getOrders_userNotExist() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/users/{userId}/orders", 100);
+                .get("/users/{userId}/orders", 100)
+                .with(httpBasic("test1@gmail.com", "111"));
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total", notNullValue()))
                 .andExpect(jsonPath("$.orders", hasSize(0)));
     }
+
+    /* Common Function */
+    private RequestBuilder createOrder(
+            CreateOrderRequest createOrderRequest,
+            Integer userId,
+            String username,
+            String pwd) throws Exception
+    {
+        String json = objectMapper.writeValueAsString(createOrderRequest);
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post("/users/{userId}/orders", userId)
+                .with(httpBasic(username, pwd))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        return requestBuilder;
+    }
+
+
 }

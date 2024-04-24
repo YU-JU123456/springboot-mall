@@ -11,7 +11,7 @@ public class UserRegisterRequest {
     private String email;
     @NotBlank
     private String pwd;
-    private Integer roleId = 2; // 預設為一般權限
+    private String roleName = "ROLE_USER"; // 預設為一般權限
 
     public String getEmail() {
         return email;
@@ -29,12 +29,12 @@ public class UserRegisterRequest {
         this.pwd = pwd;
     }
 
-    public Integer getRole() {
-        return roleId;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setRole(Integer role) {
-        this.roleId = role;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
 }

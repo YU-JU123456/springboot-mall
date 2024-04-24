@@ -1,5 +1,6 @@
 package com.ruby.mall.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ruby.mall.constant.ProductCategory;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,10 +9,12 @@ import jakarta.validation.constraints.NotNull;
  * */
 public class ProductRequest {
     @NotNull
+    @JsonProperty("product_name")
     private String productName;
     @NotNull
     private ProductCategory category;
     @NotNull
+    @JsonProperty("image_url")
     private String imageUrl;
     @NotNull
     private Integer price;
